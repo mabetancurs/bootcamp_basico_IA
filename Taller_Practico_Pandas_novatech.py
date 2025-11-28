@@ -25,49 +25,49 @@ import pandas as pd  # Librería principal para análisis de datos
 # =====================================
 # 1. Carga del Dataset
 # =====================================
-url = "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
-df4 = pd.read_csv(url)
+
+url = "https://raw.githubusercontent.com/mabetancurs/bootcamp_basico_IA/main/DB_Novatech.csv"
+bd_original_novatech = pd.read_csv(url, sep=";")
 
 # =====================================
 # 2. Exploración Inicial
 # =====================================
 #primeras 5 filas
-print(df4.head())
+print(bd_original_novatech.head())
 
 #ultimas 5 filas
-print(df4.tail())
+print(bd_original_novatech.tail())
 
 #dimensiones del data set
-print(df4.shape)
+print(bd_original_novatech.shape)
 
 #nombre de las columnas
-print(df4.columns)
+print(bd_original_novatech.columns)
 
 #tipo de datos y valores nulos
-print(df4.info())
+print(bd_original_novatech.info())
 
 #estadistica basica
-print(df4.describe())
+print(bd_original_novatech.describe())
 
 # Número de valores únicos por columna
-
-print(df4.nunique())
+print(bd_original_novatech.nunique())
 
 # Estadísticas para columnas categóricas (tipo object o string)
 print("Estadísticas de variables categóricas:")
-print(df4.describe(include='object'))
+print(bd_original_novatech.describe(include='object'))
 
 # Conteo de filas duplicadas
 print("Número de filas duplicadas:")
-print(df4.duplicated().sum())
+print(bd_original_novatech.duplicated().sum())
 
 # Ver primeras filas duplicadas si existen
 print("Filas duplicadas (si existen):")
-print(df4[df4.duplicated()].head())
+print(bd_original_novatech[bd_original_novatech.duplicated()].head())
 
 # Si quieres ver la correlación entre variables numéricas:
 print("Correlación entre variables numéricas:")
-print(df4.corr(numeric_only=True))
+print(bd_original_novatech.corr(numeric_only=True))
 
 
 # =====================================
@@ -76,43 +76,66 @@ print(df4.corr(numeric_only=True))
 # valores Nulos
 
 
-print(df4.isnull().sum())
+print(bd_original_novatech.isnull().sum())
 
 # Ver porcentaje de nulos por columna
-print(df4.isnull().mean() * 100)
+print((bd_original_novatech.isnull().mean() * 100).round(2))
 
 
 # Eliminamos columnas no útiles para análisis inicial
-df4.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin'], inplace=True)
+bd_original_novatech.drop(columns=[
+    'No Factura', 'Fecha', 'Codigo DPTO', 'Dpto', 'Codigo Municipio', 'Mun', 'Fecha1', 'Fecha2', 'Fecha3', 'Ruta',
+    ], inplace=True) # Borrado inicial
 
+bd_original_novatech.drop(columns=[
+    'Milnombre', 'Tipodiag', 'Medico'
+    ], inplace=True) # Borrado complementario
 
-print(df4.columns)
+# Imprimimos nuevamente la BD para verificar
+print(bd_original_novatech.columns)
 
-# df7=df4.drop(index=[0, 6], inplace=True)
-
-# # Eliminar las filas en las posiciones 0 y 2
-# df8 = df4.drop(df4.index[[0, 6]]) #No es necesario es solo un ejemplo
-
-# df4(df4.index[0,4])
 
 # Imputación de valores nulos en variables seleccionadas
-# 'Age': usamos la mediana porque es robusta ante outliers
-df4['Age'].fillna(df4['Age'].median(), inplace=True)  # Mediana para Edad
 
-# 'Embarked': usamos la moda (valor más frecuente) para conservar la categoría dominante
-df4['Embarked'].fillna(df4['Embarked'].mode()[0], inplace=True)  # Moda para Embarque
+# 'Edad': usamos la mediana porque es robusta ante outliers
+bd_original_novatech['Edad'].fillna(bd_original_novatech['Edad'].median(), inplace=True)  # Puede generar error de compatibilidad
 
-print(df4.isnull().sum())
+bd_original_novatech['Edad'] = bd_original_novatech['Edad'].fillna(
+    bd_original_novatech['Edad'].median()) # No genera error de compatibilidad
 
-##Eliminar valores duplicados
+
+# 'Conexion': usamos la moda (valor más frecuente) para conservar la categoría dominante
+bd_original_novatech['Conexion '].fillna(bd_original_novatech['Conexion '].mode()[0], inplace=True)  # Puede generar error de compatibilidad
+
+bd_original_novatech['Conexion '] = bd_original_novatech['Conexion '].fillna(
+    bd_original_novatech['Conexion '].mode()[0]) # No genera error de compatibilidad
+
+
+print(bd_original_novatech.isnull().sum())
+
+#-----Identificar y eliminar valores duplicados en el DATASET------
+
 #True indica filas duplicadas respecto a la primera ocurrencia
-print(df4.duplicated())  # Serie booleana mostrando duplicados
+print(bd_original_novatech.duplicated())  # Serie booleana mostrando duplicados
 
 #Número total de filas duplicadas
-print(df4.duplicated().sum())  # Conteo de filas duplicadas
+print(bd_original_novatech.duplicated().sum())  # Conteo de filas duplicadas
 
 # Opcional: eliminar duplicados para continuar con un dataset depurado
-df4 = df4.drop_duplicates().copy()  # Eliminamos duplicados y copiamos el resultado para evitar vistas
+bd_original_novatech = bd_original_novatech.drop_duplicates().copy()  # Eliminamos duplicados y copiamos el resultado para evitar vistas
+
+#-----Identificar y eliminar valores duplicados en el DATASET para la columna CEDULA------
+
+#Mostrar cuáles cedulas estan duplicadas
+print(bd_original_novatech.duplicated(subset=['Cedula']))
+
+# Contar cuántas cédulas están duplicadas
+print(bd_original_novatech.duplicated(subset=['Cedula']).sum())
+
+# Eliminar filas duplicadas basándose únicamente en la cédula
+bd_original_novatech = bd_original_novatech.drop_duplicates(subset=['Cedula']).copy()
+
+
 
 
 # =====================================
@@ -120,110 +143,327 @@ df4 = df4.drop_duplicates().copy()  # Eliminamos duplicados y copiamos el result
 # =====================================
 
 ##Renombrar una Columna
-df4.rename (columns={"Fare": "Tarifa"}, inplace=True) # se cambia Fare por tarifa
-print(df4.columns)
+
+# bd_original_novatech.rename (columns={"Conexion ": "Conexion"}, inplace=True) # se cambia 'Conexion ' por 'Conexion'
+# print(bd_original_novatech.columns) # No se uso
 
 #nombre de las columnas
-print(df4.columns)
+print(bd_original_novatech.columns)
 
-##REordenar una columna : cambia el orden de las columnas
-df5 = df4[["Pclass","Survived","Sex",'SibSp', 'Age', 'Parch', 'Tarifa',
-       'Embarked']]
-print(df5.columns)
+##Reordenar una columna : cambia el orden de las columnas
 
-#es una función anónima que devuelve: 1 si la edad es menor a 12 años,
-#0 en caso contrario.
+bd_reordenada_novatech = bd_original_novatech[[
+    'Cedula','Nombre','Segundo nombre','Primer apellido', 'Segundo apellido', 'Fecha nacimiento', 'Edad',
+    'Sexo', 'Departamento', 'Departamento codigo', 'Municipio', 'Municipio codigo', 'Tipo entidad', 'Nombre Entidad ', 'Codigo Entidad',
+    'Especialidad', 'Conexion '
+    ]]
+print(bd_reordenada_novatech.columns)
 
-df5['IsChild'] = df5['Age'].apply(lambda x: 1 if x < 12 else 0)
+#es una función anónima que devuelve: 1 si la edad es mayor o igual a 60 años, 0 en caso contrario.
+
+bd_reordenada_novatech['Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(lambda x: 1 if x >= 60 else 0)# Puede generar Warning sino es un DATAFRAME real
+
+bd_reordenada_novatech.loc[:, 'Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(
+    lambda x: 1 if x >= 60 else 0
+) #En caso de warning usar esta funcion, con .loc pandas sabe que quieres modificar el DataFrame original sin ambigüedad. 
+
+#Luego de crear la columna Adulto mayor, reordeno nuevamente el DATASET
+
+bd_reordenada_novatech = bd_reordenada_novatech[[
+    'Cedula','Nombre','Segundo nombre','Primer apellido', 'Segundo apellido', 'Fecha nacimiento', 'Edad', 'Adulto mayor',
+    'Sexo', 'Departamento', 'Departamento codigo', 'Municipio', 'Municipio codigo', 'Tipo entidad', 'Nombre Entidad ', 'Codigo Entidad',
+    'Especialidad', 'Conexion '
+    ]]
+
 
 
 # =====================================
 # 5. Análisis Univariado
 # =====================================
 
-#promedio de la edad por clase
+# Se procede a realizar un analisis univariado con las siguientes vairables:
 
-print(df5.groupby("Pclass")["Age"].mean())
+#     Departamento
+#     Código departamento
+#     Municipio
+#     Código municipio
+#     Edad
+#     Adulto mayor (0/1)
+#     Sexo
+#     Conexión (0 = no tiene / 1 = sí tiene)
 
-# promedio de la edad por embarque
+# EDAD:
 
-# Estadística descriptiva extendida para tarifa
-print(df5['Tarifa'].describe(percentiles=[0.1, 0.25, 0.5, 0.75, 0.9]))  # Incluye percentiles personalizados
+# Qué analizar
+    # Distribución de edades (histograma).
+    # Promedio, mediana, percentiles.
 
-# Distribución de embarque (conteo por puerto)
-#Conteo de pasajeros por puerto de embarque
-print(df5['Embarked'].value_counts())  # Conteo simple por categoría
+# Para qué sirve
+    # Ver si tu base tiene una población joven, adulta o muy envejecida.
+    # Identificar si hay concentración alta de adultos mayores.
+
+bd_reordenada_novatech['Edad'].describe()
+bd_reordenada_novatech['Edad'].hist()
+
+# ADULTO MAYOR (0/1)
+
+# Qué analizar
+    # Cuántos adultos mayores hay en total.
+    # Porcentaje de adultos mayores.
+
+# Para qué sirve
+    # Es clave para EPS: muestra el tamaño del grupo vulnerable.
+
+bd_reordenada_novatech['Adulto mayor'].value_counts(normalize=True)*100
+bd_reordenada_novatech['Adulto mayor'].value_counts().plot(kind='bar')
+
+# SEXO:
+
+# Qué analizar
+    # Distribución hombre / mujer.
+
+# Para qué sirve
+    # No es un predictor central para conexión, pero sí da perfil demográfico útil.
+
+bd_reordenada_novatech['Sexo'].value_counts(normalize=True)*100
+bd_reordenada_novatech['Sexo'].value_counts().plot(kind='bar')
+
+# CONEXION (0/1)
+
+# Qué analizar
+    # Porcentaje de personas sin conexión → este es el dato clave.
+    # Distribución por municipio y luego por departamento.
+
+# Para qué sirve
+    # Es la justificación para EPS:
+        # "X% de la población no tiene conexión y tiene riesgo de perder sus citas."
+
+bd_reordenada_novatech['Conexion '].value_counts(normalize=True)*100
+bd_reordenada_novatech['Conexion '].value_counts().plot(kind='bar')
+
+# MUNICIPIO
+
+# Qué analizar
+    # Municipios con mayor concentración poblacional.
+    # Municipios donde luego cruzarás “adulto mayor SIN conexión”.
+    
+bd_reordenada_novatech['Municipio'].value_counts()
+
+
+# DEPARTAMENTO
+
+# Qué analizar
+    # Cuántos registros por departamento.  
+    # Departamentos con más o menos riesgo (mirando conexión después).
+
+bd_reordenada_novatech['Departamento'].value_counts()
 
 
 # =====================================
 # 6. Análisis Bivariado
 # =====================================
 
-# tasa de supervivencia por sexo
-print(df5.groupby("Sex")["Survived"].mean())
+# Mi variable clave es conexión (0/1) donde 0 no tiene conexión y riesgo de perder la cita y 1 es si tiene conexión. 
+# Esta variable es la que voy a comprar en mi análisis bivariado vs otras variables
 
-#tasa de supervivencia por clase
-print(df5.groupby("Pclass")["Survived"].mean())
+# Conexión vs. Adulto Mayor
 
-#tabla cruzada clase vs supervivencia
-print(pd.crosstab(df5["Pclass"], df5["Survived"]))
+# Qué analiza
+    # Te muestra si los adultos mayores tienen más riesgo de no tener conexión.
 
-# Tabla cruzada normalizada por fila (proporciones por clase)
-#Tabla cruzada Pclass vs Survived (proporciones por clase)
-#Las columnas son el estado de supervivencia (Survived: 0 = no sobrevivió, 1 = sobrevivió)
-#Las filas son las clases (Pclass: 1, 2, 3)
-#normalize='index'
-#En lugar de conteos, devuelve proporciones por fila (cada fila suma 1).
-#.round(3) Redondea los valores a 3 decimales
+# Por qué importa
+    # Es el análisis más fuerte para EPS:
+        # "Los adultos mayores son el grupo más afectado por falta de conexión."
 
-print(pd.crosstab(df5["Pclass"], df5["Survived"], normalize='index').round(3))  # Normalización por fila
+pd.crosstab(bd_reordenada_novatech['Adulto mayor'], bd_reordenada_novatech['Conexion '], normalize='index') * 100
+
+(
+    pd.crosstab(
+        bd_reordenada_novatech['Adulto mayor'],
+        bd_reordenada_novatech['Conexion '],
+        normalize='index'
+    ) * 100
+).plot(kind='bar', stacked=True)
+
+
+# Conexión vs. Edad
+
+# Qué analiza
+    # Relación entre edad y falta de conexión.
+
+# Por qué importa
+    # Puedes mostrar que a mayor edad -> menor acceso digital.
+
+bd_reordenada_novatech['Rango_Edad'] = pd.cut(
+    bd_reordenada_novatech['Edad'],
+    bins=[0, 29, 44, 59, 74, 120],
+    labels=['18-29', '30-44', '45-59', '60-74', '75+']
+)
+
+pd.crosstab(bd_reordenada_novatech['Rango_Edad'], bd_reordenada_novatech['Conexion '], normalize='index') * 100
+
+
+# Conexión vs. Municipio
+
+# Qué analiza
+#     Porcentaje de personas sin conexión por municipio.
+
+# Por qué importa
+#     Este es el resultado estrella para presentar a EPS.
+#     EPS gestionan por sedes territoriales, por tal razon el municipio es crucial.
+
+bd_reordenada_novatech['Conexion '] = bd_reordenada_novatech['Conexion '].map({
+    'SI': 1,
+    'NO': 0
+}) #Con esta funcion tuve que pasar los datos en cadeta de 'SI' y 'NO' de la columna 'Conexion ' a numeros
+
+
+conexion_mun = bd_reordenada_novatech.groupby('Municipio')['Conexion '].mean() * 100 # % de personas con conexion
+conexion_mun.sort_values()  # del peor al mejor
+
+sin_conexion_mun = (1 - bd_reordenada_novatech.groupby('Municipio')['Conexion '].mean()) * 100 # % de personas sin conexion
+sin_conexion_mun.sort_values()  # del peor al mejor
+
+
+# Conexión vs. Departamento
+
+# Qué analiza
+#     Lo mismo que municipio, pero resumido por departamento.
+
+conexion_dep = bd_reordenada_novatech.groupby('Departamento')['Conexion '].mean() * 100 # % de personas con conexion
+conexion_dep.sort_values()  # del peor al mejor
+
+sin_conexion_dep = (1 - bd_reordenada_novatech.groupby('Departamento')['Conexion '].mean()) * 100
+sin_conexion_dep.sort_values()
+
+
+
+# Adulto Mayor SIN conexión por municipio
+
+riesgo_mun = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Municipio')['Conexion '].mean()
+riesgo_mun = (1 - riesgo_mun) * 100  # % sin conexión
+riesgo_mun.sort_values()
+
+
+# Adulto Mayor SIN conexión por departamento
+
+riesgo_dep = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Departamento')['Conexion '].mean()
+riesgo_dep = (1 - riesgo_dep) * 100
+riesgo_dep.sort_values()
+
+"----------------------------------------------------------------------------------------------------------------------------"
+# Municipio vs. Adulto Mayor
+
+# Qué analiza
+    # Municipios con mayor presencia de adultos mayores.
+    
+adulto_mun = bd_reordenada_novatech.groupby('Municipio')['Adulto mayor'].mean() * 100
+
+
+# Adulto Mayor vs. Departamento
+
+# Qué analiza
+    # Qué departamentos tienen mayor proporción de adultos mayores (grupo vulnerable).
+
+adulto_dep = bd_reordenada_novatech.groupby('Departamento')['Adulto mayor'].mean() * 100
+"----------------------------------------------------------------------------------------------------------------------------"
 
 
 # =====================================
 # 7. Análisis Multivariado
 # =====================================
-#Edad - media, mediana, y desviación por clase
-print(df5.groupby("Pclass")["Age"].agg(["mean","median","std"]))  # Agregaciones múltiples
 
-# Supervivencia por (clase, sexo)
-print(df5.groupby(["Pclass", "Sex"])["Survived"].mean().unstack())  # Tabla de doble entrada
+# El objetivo es analizar cómo varias variables juntas influyen en la probabilidad de no tener conexión, que se traduce en
+# riesgo de perder citas médicas por falta de conectividad.
 
-# Pivot table multivariable: promedio de Tarifa por (Pclass, Embarked)
-print(pd.pivot_table(df5, values='Tarifa', index='Pclass', columns='Embarked', aggfunc='mean').round(2))
+# Conexión vs. Edad + Municipio
+    # Municipios donde los adultos mayores específicos están más desconectados.
 
-# Correlación entre variables numéricas
-num_cols = df5.select_dtypes(include=['number']).columns  # Selecciona columnas numéricas
-print(df5[num_cols].corr().round(3))  # Correlación de Pearson por defecto
+tabla_mun = bd_reordenada_novatech.pivot_table(
+    index='Municipio',
+    columns='Rango_Edad',
+    values='Conexion ',
+    aggfunc='mean'
+) * 100
+
+# Conexión vs. Departamento + Adulto Mayor
+    # Departamentos donde los adultos mayores específicos están más desconectados.
+
+tabla_dep = bd_reordenada_novatech.pivot_table(
+    index='Departamento',
+    columns='Adulto mayor',
+    values='Conexion ',
+    aggfunc='mean'
+) * 100
 
 
 # =====================================
 # 8. Correlación Numérica
 # =====================================
+
+# Matriz de correlación (solo numéricas)
+
+# Aunque Conexión es binaria (0/1), se va a correlacionar con:
+
+    # Edad
+    # Adulto_mayor
+    # Código departamento
+    # Código municipio
+
+#Interpretacion
+
+    # Correlación negativa entre Edad y Conexión = a mayor edad -> menos conexión
+    # Alta correlación entre Edad y Adulto Mayor = esperado
+    
+correlacion_num = bd_reordenada_novatech[['Edad', 'Adulto mayor', 'Conexion ']].corr()
+
+# Esta tabla que mide la relación estadística entre cada par de variables numéricas del dataset.
+# Los valores van de:
+    # 	+1.0 → correlación positiva perfecta
+    # 	0.0 → sin relación
+    # 	−1.0 → correlación negativa perfecta
+
+# 1. Correlación Edad ↔ Adulto Mayor: Se espera un valor positivo alto (cerca de 0.7–0.9)
+# Interpretación
+    # Entre más alta la edad, más probable es que la persona sea "adulto mayor".
+    # Eso simplemente confirma que la columna "Adulto Mayor" está bien construida.
+
+# 2. Correlación Edad <==> Conexión: Si el número es negativo Ej: (−0.25, −0.35)
+# Entre más edad tiene la persona, menos probabilidad de tener conexión.
+# Conclusión: Los adultos mayores son más vulnerables digitalmente.
+
+# 3. Correlación Adulto Mayor <==>  Conexión
+# Si la hipótesis es correcta esto también suele ser negativo. Ejemplo: −0.40
+# Interpretación
+    # Ser adulto mayor está asociado a una menor probabilidad de estar conectado.
+
+
+
 #Correlación con la variable 'Survived'
-print(df5.corr(numeric_only=True)['Survived'].sort_values(ascending=False))
+print(bd_reordenada_novatech.corr(numeric_only=True)['Survived'].sort_values(ascending=False))
 
 # =====================================
 # 9. Estadísticas Detalladas
 # =====================================
 #Edad - Media, Mediana y Desviación por Clase
-print(df5.groupby('Pclass')['Age'].agg(['mean', 'median', 'std']))
+print(bd_reordenada_novatech.groupby('Pclass')['Age'].agg(['mean', 'median', 'std']))
 
 #Supervivencia por sexo y clase (pivot):
 # Promedio de supervivencia por sexo y clase
-print(df5.pivot_table(values='Survived', index='Sex', columns='Pclass', aggfunc='mean'))
+print(bd_reordenada_novatech.pivot_table(values='Survived', index='Sex', columns='Pclass', aggfunc='mean'))
                                                   
 
 #Estadísticas de tarifas pagadas por clase
-print(df5.groupby('Pclass')['Tarifa'].describe())
+print(bd_reordenada_novatech.groupby('Pclass')['Tarifa'].describe())
 
 #Promedio de edad según supervivencia
-print(df5.groupby('Survived')['Age'].mean())
+print(bd_reordenada_novatech.groupby('Survived')['Age'].mean())
 
 #Proporción de niños por clase
-print(df5.groupby('Pclass')['IsChild'].mean())
+print(bd_reordenada_novatech.groupby('Pclass')['IsChild'].mean())
 
 # =====================================
 # 11. Exportar Dataset Limpio
 # =====================================
-df5.to_csv("titanic_limpio.csv", index=False)
+bd_reordenada_novatech.to_csv("titanic_limpio.csv", index=False)
 
