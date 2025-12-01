@@ -133,7 +133,8 @@ print(bd_original_novatech.duplicated(subset=['Cedula']).sum())
 
 # Eliminar filas duplicadas basándose únicamente en la cédula
 bd_original_novatech = bd_original_novatech.drop_duplicates(subset=['Cedula']).copy()
-
+print("Validacion Cedulas duplicadas luego del borrado")
+print(bd_original_novatech.duplicated(subset=['Cedula']).sum())
 
 # =====================================
 # 4. Transformación de Variables
@@ -145,28 +146,26 @@ bd_original_novatech = bd_original_novatech.drop_duplicates(subset=['Cedula']).c
 # print(bd_original_novatech.columns) # No se uso
 
 #nombre de las columnas
-print(bd_original_novatech.columns)# No se uso
+#print(bd_original_novatech.columns)# No se uso
 
 ##Reordenar una columna : cambia el orden de las columnas
 
 bd_reordenada_novatech = bd_original_novatech[[
-    'Cedula', 'Sexo', 'Edad', 'Departamento codigo', 'Municipio codigo', 'Codigo Entidad', 'Conexion', 'Conexion '
+    'Cedula', 'Sexo', 'Edad', 'Departamento codigo', 'Municipio codigo', 'Codigo Entidad', 'Conexion'
     ]]
 print(bd_reordenada_novatech.columns)
 
 #es una función anónima que devuelve: 1 si la edad es mayor o igual a 60 años, 0 en caso contrario.
 
-#bd_reordenada_novatech['Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(lambda x: 1 if x >= 60 else 0)# Puede generar Warning sino es un DATAFRAME real
-
 bd_reordenada_novatech.loc[:, 'Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(
     lambda x: 1 if x >= 60 else 0
-) #En caso de warning usar esta funcion, con .loc pandas sabe que quieres modificar el DataFrame original sin ambigüedad. 
+) #Con .loc pandas sabe que quieres modificar el DataFrame original sin ambigüedad. 
 
 #Luego de crear la columna Adulto mayor, reordeno nuevamente el DATASET
 
 bd_reordenada_novatech = bd_reordenada_novatech[[
     'Cedula', 'Sexo', 'Edad', 'Adulto mayor', 'Departamento codigo', 'Municipio codigo', 'Codigo Entidad',
-    'Conexion', 'Conexion '
+    'Conexion'
     ]]
 
 print(bd_reordenada_novatech.columns)
@@ -276,7 +275,7 @@ pd.crosstab(bd_reordenada_novatech['Adulto mayor'], bd_reordenada_novatech['Cone
 (
     pd.crosstab(
         bd_reordenada_novatech['Adulto mayor'],
-        bd_reordenada_novatech['Conexion '],
+        bd_reordenada_novatech['Conexion'],
         normalize='index'
     ) * 100
 ).plot(kind='bar', stacked=True)
@@ -296,7 +295,7 @@ bd_reordenada_novatech['Rango_Edad'] = pd.cut(
     labels=['18-29', '30-44', '45-59', '60-74', '75+']
 )
 
-pd.crosstab(bd_reordenada_novatech['Rango_Edad'], bd_reordenada_novatech['Conexion '], normalize='index') * 100
+pd.crosstab(bd_reordenada_novatech['Rango_Edad'], bd_reordenada_novatech['Conexion'], normalize='index') * 100
 
 
 # Conexión vs. Municipio
@@ -308,16 +307,21 @@ pd.crosstab(bd_reordenada_novatech['Rango_Edad'], bd_reordenada_novatech['Conexi
 #     Este es el resultado estrella para presentar a EPS.
 #     EPS gestionan por sedes territoriales, por tal razon el municipio es crucial.
 
-bd_reordenada_novatech['Conexion '] = bd_reordenada_novatech['Conexion '].map({
-    'SI': 1,
-    'NO': 0
-}) #Con esta funcion tuve que pasar los datos en cadeta de 'SI' y 'NO' de la columna 'Conexion ' a numeros
+"""bd_reordenada_novatech['Conexion'] = bd_reordenada_novatech['Conexion'].map({
+    'MASCULINO': 1,
+    'FEMENINO': 0
+}) 
+
+bd_reordenada_novatech['Sexo'] = bd_reordenada_novatech['Sexo'].map({
+    'MASCULINO': 1,
+    'FEMENINO': 0
+}) #Con esta funcion tuve que pasar los datos en cadeta de 'SI' y 'NO' de la columna 'Sexo' a numeros"""
 
 
-conexion_mun = bd_reordenada_novatech.groupby('Municipio')['Conexion '].mean() * 100 # % de personas con conexion
+conexion_mun = bd_reordenada_novatech.groupby('Municipio codigo')['Conexion'].mean() * 100 # % de personas con conexion
 conexion_mun.sort_values()  # del peor al mejor
 
-sin_conexion_mun = (1 - bd_reordenada_novatech.groupby('Municipio')['Conexion '].mean()) * 100 # % de personas sin conexion
+sin_conexion_mun = (1 - bd_reordenada_novatech.groupby('Municipio codigo')['Conexion'].mean()) * 100 # % de personas sin conexion
 sin_conexion_mun.sort_values()  # del peor al mejor
 
 
@@ -326,24 +330,24 @@ sin_conexion_mun.sort_values()  # del peor al mejor
 # Qué analiza
 #     Lo mismo que municipio, pero resumido por departamento.
 
-conexion_dep = bd_reordenada_novatech.groupby('Departamento')['Conexion '].mean() * 100 # % de personas con conexion
+conexion_dep = bd_reordenada_novatech.groupby('Departamento codigo')['Conexion'].mean() * 100 # % de personas con conexion
 conexion_dep.sort_values()  # del peor al mejor
 
-sin_conexion_dep = (1 - bd_reordenada_novatech.groupby('Departamento')['Conexion '].mean()) * 100
+sin_conexion_dep = (1 - bd_reordenada_novatech.groupby('Departamento codigo')['Conexion'].mean()) * 100
 sin_conexion_dep.sort_values()
 
 
 
 # Adulto Mayor SIN conexión por municipio
 
-riesgo_mun = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Municipio')['Conexion '].mean()
+riesgo_mun = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Municipio codigo')['Conexion'].mean()
 riesgo_mun = (1 - riesgo_mun) * 100  # % sin conexión
 riesgo_mun.sort_values()
 
 
 # Adulto Mayor SIN conexión por departamento
 
-riesgo_dep = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Departamento')['Conexion '].mean()
+riesgo_dep = bd_reordenada_novatech[bd_reordenada_novatech['Adulto mayor'] == 1].groupby('Departamento codigo')['Conexion'].mean()
 riesgo_dep = (1 - riesgo_dep) * 100
 riesgo_dep.sort_values()
 
@@ -353,15 +357,16 @@ riesgo_dep.sort_values()
 # Qué analiza
     # Municipios con mayor presencia de adultos mayores.
     
-adulto_mun = bd_reordenada_novatech.groupby('Municipio')['Adulto mayor'].mean() * 100
-
+adulto_mun = bd_reordenada_novatech.groupby('Municipio codigo')['Adulto mayor'].mean() * 100
+print(adulto_mun)
 
 # Adulto Mayor vs. Departamento
 
 # Qué analiza
     # Qué departamentos tienen mayor proporción de adultos mayores (grupo vulnerable).
 
-adulto_dep = bd_reordenada_novatech.groupby('Departamento')['Adulto mayor'].mean() * 100
+adulto_dep = bd_reordenada_novatech.groupby('Departamento codigo')['Adulto mayor'].mean() * 100
+print(adulto_dep)
 "----------------------------------------------------------------------------------------------------------------------------"
 
 
@@ -376,9 +381,9 @@ adulto_dep = bd_reordenada_novatech.groupby('Departamento')['Adulto mayor'].mean
     # Municipios donde los adultos mayores específicos están más desconectados.
 
 tabla_mun = bd_reordenada_novatech.pivot_table(
-    index='Municipio',
+    index='Municipio codigo',
     columns='Rango_Edad',
-    values='Conexion ',
+    values='Conexion',
     aggfunc='mean'
 ) * 100
 
@@ -386,9 +391,9 @@ tabla_mun = bd_reordenada_novatech.pivot_table(
     # Departamentos donde los adultos mayores específicos están más desconectados.
 
 tabla_dep = bd_reordenada_novatech.pivot_table(
-    index='Departamento',
+    index='Departamento codigo',
     columns='Adulto mayor',
-    values='Conexion ',
+    values='Conexion',
     aggfunc='mean'
 ) * 100
 
@@ -411,7 +416,7 @@ tabla_dep = bd_reordenada_novatech.pivot_table(
     # Correlación negativa entre Edad y Conexión = a mayor edad -> menos conexión
     # Alta correlación entre Edad y Adulto Mayor = esperado
     
-correlacion_num = bd_reordenada_novatech[['Edad', 'Adulto mayor', 'Conexion ']].corr()
+correlacion_num = bd_reordenada_novatech[['Edad', 'Adulto mayor', 'Conexion']].corr()
 
 # Esta tabla que mide la relación estadística entre cada par de variables numéricas del dataset.
 # Los valores van de:
@@ -419,7 +424,7 @@ correlacion_num = bd_reordenada_novatech[['Edad', 'Adulto mayor', 'Conexion ']].
     # 	0.0 → sin relación
     # 	−1.0 → correlación negativa perfecta
 
-# 1. Correlación Edad ↔ Adulto Mayor: Se espera un valor positivo alto (cerca de 0.7–0.9)
+# 1. Correlación Edad <-> Adulto Mayor: Se espera un valor positivo alto (cerca de 0.7–0.9)
 # Interpretación
     # Entre más alta la edad, más probable es que la persona sea "adulto mayor".
     # Eso simplemente confirma que la columna "Adulto Mayor" está bien construida.
@@ -448,25 +453,25 @@ print(bd_reordenada_novatech.groupby('Adulto mayor')['Edad'].agg(['mean', 'media
 
 #Porcentaje de conexión por sexo y adulto mayor (Pivot Table):
 # Promedio de supervivencia por sexo y clase
-print(bd_reordenada_novatech.pivot_table(values='Conexion_num', index='Sexo', columns='Adulto mayor', aggfunc='mean'))
-print(bd_reordenada_novatech.pivot_table(values='Survived', index='Sex', columns='Pclass', aggfunc='mean'))
+print(bd_reordenada_novatech.pivot_table(values='Conexion', index='Sexo', columns='Adulto mayor', aggfunc='mean'))
+
                                                   
 
 #Edad por Departamento (describe completo)
     # Esto revela si hay departamentos más envejecidos que otros.
     # Es clave para segmentar riesgo de desconexión.
-print(bd_reordenada_novatech.groupby('Departamento')['Edad'].describe())
+print(bd_reordenada_novatech.groupby('Departamento codigo')['Edad'].describe())
 
 
 #Promedio de edad según conexión
     #Indica si las personas sin conexión son significativamente mayores.
-print(bd_reordenada_novatech.groupby('Conexion ')['Edad'].mean())
+print(bd_reordenada_novatech.groupby('Conexion')['Edad'].mean())
 
 
 #Proporción de adultos mayores por municipio
     # Muestra qué municipios están más envejecidos.
     # Más adultos mayores -> más riesgo -> más desconexión.
-print(bd_reordenada_novatech.groupby('Municipio')['Adulto mayor'].mean())
+print(bd_reordenada_novatech.groupby('Municipio codigo')['Adulto mayor'].mean())
 
 
 # =====================================
