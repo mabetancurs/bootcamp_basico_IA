@@ -96,15 +96,9 @@ print(bd_original_novatech.columns)
 
 # Imputación de valores nulos en variables seleccionadas
 
-# 'Edad': usamos la mediana porque es robusta ante outliers
-# bd_original_novatech['Edad'].fillna(bd_original_novatech['Edad'].median(), inplace=True)  # Puede generar error de compatibilidad
-
 bd_original_novatech['Edad'] = bd_original_novatech['Edad'].fillna(
     bd_original_novatech['Edad'].median()) # No genera error de compatibilidad
 
-
-# 'Conexion': usamos la moda (valor más frecuente) para conservar la categoría dominante
-#bd_original_novatech['Conexion '].fillna(bd_original_novatech['Conexion '].mode()[0], inplace=True)  # Puede generar error de compatibilidad
 
 bd_original_novatech['Conexion'] = bd_original_novatech['Conexion'].fillna(
     bd_original_novatech['Conexion'].mode()[0]) # No genera error de compatibilidad
