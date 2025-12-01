@@ -438,32 +438,43 @@ correlacion_num = bd_reordenada_novatech[['Edad', 'Adulto mayor', 'Conexion ']].
     # Ser adulto mayor está asociado a una menor probabilidad de estar conectado.
 
 
-
-#Correlación con la variable 'Survived'
-print(bd_reordenada_novatech.corr(numeric_only=True)['Survived'].sort_values(ascending=False))
-
 # =====================================
 # 9. Estadísticas Detalladas
 # =====================================
-#Edad - Media, Mediana y Desviación por Clase
-print(bd_reordenada_novatech.groupby('Pclass')['Age'].agg(['mean', 'median', 'std']))
 
-#Supervivencia por sexo y clase (pivot):
+#Edad – Media, Mediana y Desviación por Adulto Mayor
+    # Muestra cómo cambia la edad dentro de cada grupo (mayor / no mayor).
+    # Útil para verificar si el etiquetado "Adulto Mayor" tiene coherencia.
+
+print(bd_reordenada_novatech.groupby('Adulto mayor')['Edad'].agg(['mean', 'median', 'std']))
+
+
+
+#Porcentaje de conexión por sexo y adulto mayor (Pivot Table):
 # Promedio de supervivencia por sexo y clase
+print(bd_reordenada_novatech.pivot_table(values='Conexion_num', index='Sexo', columns='Adulto mayor', aggfunc='mean'))
 print(bd_reordenada_novatech.pivot_table(values='Survived', index='Sex', columns='Pclass', aggfunc='mean'))
                                                   
 
-#Estadísticas de tarifas pagadas por clase
-print(bd_reordenada_novatech.groupby('Pclass')['Tarifa'].describe())
+#Edad por Departamento (describe completo)
+    # Esto revela si hay departamentos más envejecidos que otros.
+    # Es clave para segmentar riesgo de desconexión.
+print(bd_reordenada_novatech.groupby('Departamento')['Edad'].describe())
 
-#Promedio de edad según supervivencia
-print(bd_reordenada_novatech.groupby('Survived')['Age'].mean())
 
-#Proporción de niños por clase
-print(bd_reordenada_novatech.groupby('Pclass')['IsChild'].mean())
+#Promedio de edad según conexión
+    #Indica si las personas sin conexión son significativamente mayores.
+print(bd_reordenada_novatech.groupby('Conexion ')['Edad'].mean())
+
+
+#Proporción de adultos mayores por municipio
+    # Muestra qué municipios están más envejecidos.
+    # Más adultos mayores -> más riesgo -> más desconexión.
+print(bd_reordenada_novatech.groupby('Municipio')['Adulto mayor'].mean())
+
 
 # =====================================
 # 11. Exportar Dataset Limpio
 # =====================================
-bd_reordenada_novatech.to_csv("titanic_limpio.csv", index=False)
+bd_reordenada_novatech.to_csv("db_novatech_limpia.csv", index=False)
 
