@@ -84,12 +84,11 @@ print((bd_original_novatech.isnull().mean() * 100).round(2))
 
 # Eliminamos columnas no útiles para análisis inicial
 bd_original_novatech.drop(columns=[
-    'No Factura', 'Fecha', 'Codigo DPTO', 'Dpto', 'Codigo Municipio', 'Mun', 'Fecha1', 'Fecha2', 'Fecha3', 'Ruta',
+    'Nombre', 'Segundo nombre', 'Primer apellido', 'Segundo apellido', 'Fecha nacimiento', 'No Factura', 'Fecha',
+    'Codigo DPTO', 'Dpto', 'Codigo Municipio', 'Mun', 'Tipo entidad', 'Nombre Entidad ', 'Fecha1', 'Fecha2', 'Fecha3', 
+    'Ruta', 'Milnombre', 'Tipodiag', 'Medico', 'Especialidad', 'Departamento', 'Municipio'
     ], inplace=True) # Borrado inicial
 
-bd_original_novatech.drop(columns=[
-    'Milnombre', 'Tipodiag', 'Medico'
-    ], inplace=True) # Borrado complementario
 
 # Imprimimos nuevamente la BD para verificar
 print(bd_original_novatech.columns)
@@ -98,17 +97,17 @@ print(bd_original_novatech.columns)
 # Imputación de valores nulos en variables seleccionadas
 
 # 'Edad': usamos la mediana porque es robusta ante outliers
-bd_original_novatech['Edad'].fillna(bd_original_novatech['Edad'].median(), inplace=True)  # Puede generar error de compatibilidad
+# bd_original_novatech['Edad'].fillna(bd_original_novatech['Edad'].median(), inplace=True)  # Puede generar error de compatibilidad
 
 bd_original_novatech['Edad'] = bd_original_novatech['Edad'].fillna(
     bd_original_novatech['Edad'].median()) # No genera error de compatibilidad
 
 
 # 'Conexion': usamos la moda (valor más frecuente) para conservar la categoría dominante
-bd_original_novatech['Conexion '].fillna(bd_original_novatech['Conexion '].mode()[0], inplace=True)  # Puede generar error de compatibilidad
+#bd_original_novatech['Conexion '].fillna(bd_original_novatech['Conexion '].mode()[0], inplace=True)  # Puede generar error de compatibilidad
 
-bd_original_novatech['Conexion '] = bd_original_novatech['Conexion '].fillna(
-    bd_original_novatech['Conexion '].mode()[0]) # No genera error de compatibilidad
+bd_original_novatech['Conexion'] = bd_original_novatech['Conexion'].fillna(
+    bd_original_novatech['Conexion'].mode()[0]) # No genera error de compatibilidad
 
 
 print(bd_original_novatech.isnull().sum())
@@ -122,7 +121,7 @@ print(bd_original_novatech.duplicated())  # Serie booleana mostrando duplicados
 print(bd_original_novatech.duplicated().sum())  # Conteo de filas duplicadas
 
 # Opcional: eliminar duplicados para continuar con un dataset depurado
-bd_original_novatech = bd_original_novatech.drop_duplicates().copy()  # Eliminamos duplicados y copiamos el resultado para evitar vistas
+#bd_original_novatech = bd_original_novatech.drop_duplicates().copy()  # Eliminamos duplicados y copiamos el resultado para evitar vistas
 
 #-----Identificar y eliminar valores duplicados en el DATASET para la columna CEDULA------
 
@@ -136,8 +135,6 @@ print(bd_original_novatech.duplicated(subset=['Cedula']).sum())
 bd_original_novatech = bd_original_novatech.drop_duplicates(subset=['Cedula']).copy()
 
 
-
-
 # =====================================
 # 4. Transformación de Variables
 # =====================================
@@ -148,20 +145,18 @@ bd_original_novatech = bd_original_novatech.drop_duplicates(subset=['Cedula']).c
 # print(bd_original_novatech.columns) # No se uso
 
 #nombre de las columnas
-print(bd_original_novatech.columns)
+print(bd_original_novatech.columns)# No se uso
 
 ##Reordenar una columna : cambia el orden de las columnas
 
 bd_reordenada_novatech = bd_original_novatech[[
-    'Cedula','Nombre','Segundo nombre','Primer apellido', 'Segundo apellido', 'Fecha nacimiento', 'Edad',
-    'Sexo', 'Departamento', 'Departamento codigo', 'Municipio', 'Municipio codigo', 'Tipo entidad', 'Nombre Entidad ', 'Codigo Entidad',
-    'Especialidad', 'Conexion '
+    'Cedula', 'Sexo', 'Edad', 'Departamento codigo', 'Municipio codigo', 'Codigo Entidad', 'Conexion', 'Conexion '
     ]]
 print(bd_reordenada_novatech.columns)
 
 #es una función anónima que devuelve: 1 si la edad es mayor o igual a 60 años, 0 en caso contrario.
 
-bd_reordenada_novatech['Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(lambda x: 1 if x >= 60 else 0)# Puede generar Warning sino es un DATAFRAME real
+#bd_reordenada_novatech['Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(lambda x: 1 if x >= 60 else 0)# Puede generar Warning sino es un DATAFRAME real
 
 bd_reordenada_novatech.loc[:, 'Adulto mayor'] = bd_reordenada_novatech['Edad'].apply(
     lambda x: 1 if x >= 60 else 0
@@ -170,10 +165,11 @@ bd_reordenada_novatech.loc[:, 'Adulto mayor'] = bd_reordenada_novatech['Edad'].a
 #Luego de crear la columna Adulto mayor, reordeno nuevamente el DATASET
 
 bd_reordenada_novatech = bd_reordenada_novatech[[
-    'Cedula','Nombre','Segundo nombre','Primer apellido', 'Segundo apellido', 'Fecha nacimiento', 'Edad', 'Adulto mayor',
-    'Sexo', 'Departamento', 'Departamento codigo', 'Municipio', 'Municipio codigo', 'Tipo entidad', 'Nombre Entidad ', 'Codigo Entidad',
-    'Especialidad', 'Conexion '
+    'Cedula', 'Sexo', 'Edad', 'Adulto mayor', 'Departamento codigo', 'Municipio codigo', 'Codigo Entidad',
+    'Conexion', 'Conexion '
     ]]
+
+print(bd_reordenada_novatech.columns)
 
 
 
@@ -203,7 +199,7 @@ bd_reordenada_novatech = bd_reordenada_novatech[[
     # Identificar si hay concentración alta de adultos mayores.
 
 bd_reordenada_novatech['Edad'].describe()
-bd_reordenada_novatech['Edad'].hist()
+bd_reordenada_novatech['Edad'].hist(bins=38, color="blue", edgecolor="black", alpha=0.7)
 
 # ADULTO MAYOR (0/1)
 
@@ -226,7 +222,7 @@ bd_reordenada_novatech['Adulto mayor'].value_counts().plot(kind='bar')
     # No es un predictor central para conexión, pero sí da perfil demográfico útil.
 
 bd_reordenada_novatech['Sexo'].value_counts(normalize=True)*100
-bd_reordenada_novatech['Sexo'].value_counts().plot(kind='bar')
+bd_reordenada_novatech['Sexo'].value_counts().plot(kind='bar', color="red")
 
 # CONEXION (0/1)
 
@@ -238,8 +234,8 @@ bd_reordenada_novatech['Sexo'].value_counts().plot(kind='bar')
     # Es la justificación para EPS:
         # "X% de la población no tiene conexión y tiene riesgo de perder sus citas."
 
-bd_reordenada_novatech['Conexion '].value_counts(normalize=True)*100
-bd_reordenada_novatech['Conexion '].value_counts().plot(kind='bar')
+bd_reordenada_novatech['Conexion'].value_counts(normalize=True)*100
+bd_reordenada_novatech['Conexion'].value_counts().plot(kind='bar', color="green")
 
 # MUNICIPIO
 
@@ -247,7 +243,7 @@ bd_reordenada_novatech['Conexion '].value_counts().plot(kind='bar')
     # Municipios con mayor concentración poblacional.
     # Municipios donde luego cruzarás “adulto mayor SIN conexión”.
     
-bd_reordenada_novatech['Municipio'].value_counts()
+bd_reordenada_novatech['Municipio codigo'].value_counts()
 
 
 # DEPARTAMENTO
@@ -256,7 +252,7 @@ bd_reordenada_novatech['Municipio'].value_counts()
     # Cuántos registros por departamento.  
     # Departamentos con más o menos riesgo (mirando conexión después).
 
-bd_reordenada_novatech['Departamento'].value_counts()
+bd_reordenada_novatech['Departamento codigo'].value_counts()
 
 
 # =====================================
@@ -275,7 +271,7 @@ bd_reordenada_novatech['Departamento'].value_counts()
     # Es el análisis más fuerte para EPS:
         # "Los adultos mayores son el grupo más afectado por falta de conexión."
 
-pd.crosstab(bd_reordenada_novatech['Adulto mayor'], bd_reordenada_novatech['Conexion '], normalize='index') * 100
+pd.crosstab(bd_reordenada_novatech['Adulto mayor'], bd_reordenada_novatech['Conexion'], normalize='index') * 100
 
 (
     pd.crosstab(
